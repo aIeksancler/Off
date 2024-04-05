@@ -11,6 +11,7 @@ def start_shutdown():
     except ValueError:
         entry.delete(0, tk.END)
         entry.insert(0, "Enter minutes to shutdown")
+        root.focus_set()
 
 def cancel_shutdown():
     global remaining_time
@@ -19,6 +20,7 @@ def cancel_shutdown():
     entry.delete(0, tk.END)
     entry.insert(0, "Enter minutes to shutdown")
     root.after_cancel(countdown_id)
+    root.focus_set()
 
 def update_countdown():
     global remaining_time, countdown_id
@@ -33,7 +35,7 @@ def update_countdown():
         countdown_id = root.after(1000, update_countdown)
     else:
         shutdown_button.config(text="Bye!")
-        subprocess.run(["shutdown", "/s", "/t", "0"])
+        #subprocess.run(["shutdown", "/s", "/t", "0"])
 
 def select_entry_text(event):
     entry.select_range(0, tk.END)
