@@ -3,31 +3,36 @@ import subprocess
 
 def start_shutdown():
     try:
-        global remaining_time
+        global remaining_time, countdown_id
         minutes = int(entry.get())
         remaining_time = minutes * 60
         update_countdown()
-        shutdown_button.config(state="disabled")
-        cancel_button.config(state="normal")
+        shutdown_button.config(command=cancel_shutdown, text="Cancel")
     except ValueError:
-        label.config(text="Please enter a valid number of minutes")
+        entry.delete(0, tk.END)
+        entry.insert(0, "Enter minutes to shutdown")
 
 def cancel_shutdown():
     global remaining_time
-    remaining_time = 0
-    update_countdown()
-    shutdown_button.config(state="normal")
-    cancel_button.config(state="disabled")
+    shutdown_button.config(text="Start", command=start_shutdown)
+    entry.config(state="normal")
+    entry.delete(0, tk.END)
+    entry.insert(0, "Enter minutes to shutdown")
+    root.after_cancel(countdown_id)
 
 def update_countdown():
-    global remaining_time
+    global remaining_time, countdown_id
     minutes = remaining_time // 60
     seconds = remaining_time % 60
-    countdown_label.config(text="Shutdown in: {:02d}:{:02d}".format(minutes, seconds))
+    entry.config(state="normal")
+    entry.delete(0, tk.END)
+    entry.insert(0, "Shutdown in: {:02d}:{:02d}".format(minutes, seconds))
+    entry.config(state="disabled")
     if remaining_time > 0:
         remaining_time -= 1
-        root.after(1000, update_countdown)
+        countdown_id = root.after(1000, update_countdown)
     else:
+        shutdown_button.config(text="Bye!")
         subprocess.run(["shutdown", "/s", "/t", "0"])
 
 def select_entry_text(event):
@@ -36,30 +41,18 @@ def select_entry_text(event):
 # Create main window
 root = tk.Tk()
 root.title("Off")
-root.geometry("200x120")
+root.geometry("200x70")
 root.resizable(False, False)
 
 # Create entry widget
-entry = tk.Entry(root, width=30)
-entry.pack(pady=10)
+entry = tk.Entry(root, width=100, justify="center", state="normal")
+entry.pack(pady=5)
 entry.insert(0, "Enter minutes to shutdown")
 entry.bind("<FocusIn>", select_entry_text)
 
 # Create shutdown button
 shutdown_button = tk.Button(root, text="Start", command=start_shutdown)
 shutdown_button.pack(pady=5)
-
-# Create cancel button
-cancel_button = tk.Button(root, text="Cancel", command=cancel_shutdown, state="disabled")
-cancel_button.pack(pady=5)
-
-# Create countdown label
-countdown_label = tk.Label(root, text="")
-countdown_label.pack(pady=5)
-
-# Create label to display messages
-label = tk.Label(root, text="")
-label.pack(pady=5)
 
 # Run the application
 root.mainloop()
