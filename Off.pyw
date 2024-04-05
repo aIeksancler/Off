@@ -35,7 +35,7 @@ def update_countdown():
         countdown_id = root.after(1000, update_countdown)
     else:
         shutdown_button.config(text="Bye!")
-        #subprocess.run(["shutdown", "/s", "/t", "0"])
+        subprocess.run(["shutdown", "/s", "/t", "0"])
 
 def select_entry_text(event):
     entry.select_range(0, tk.END)
@@ -51,6 +51,7 @@ entry = tk.Entry(root, width=100, justify="center", state="normal")
 entry.pack(pady=5)
 entry.insert(0, "Enter minutes to shutdown")
 entry.bind("<FocusIn>", select_entry_text)
+entry.bind("<Return>", lambda event: start_shutdown())
 
 # Create shutdown button
 shutdown_button = tk.Button(root, text="Start", command=start_shutdown)
